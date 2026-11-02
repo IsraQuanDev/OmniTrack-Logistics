@@ -35,10 +35,10 @@ Los microservicios cuentan con **túneles seguros HTTPS de Cloudflare activos en
 
 | Microservicio | URL Base Pública | Documentación Interactiva Swagger UI | Monitoreo Actuator |
 |---|---|---|---|
-| **Fleet Management Service** | `https://sat-agriculture-shoes-affiliate.trycloudflare.com` | [Swagger UI Fleet](https://sat-agriculture-shoes-affiliate.trycloudflare.com/swagger-ui.html) | [Health](https://sat-agriculture-shoes-affiliate.trycloudflare.com/actuator/health) |
-| **GPS Ingestion Service** | `https://ping-early-parish-track.trycloudflare.com` | [Swagger UI GPS](https://ping-early-parish-track.trycloudflare.com/swagger-ui.html) | [Health](https://ping-early-parish-track.trycloudflare.com/actuator/health) |
-| **Route Calculation Service** | `https://months-businesses-mins-gibson.trycloudflare.com` | [Swagger UI Routes](https://months-businesses-mins-gibson.trycloudflare.com/swagger-ui.html) | [Health](https://months-businesses-mins-gibson.trycloudflare.com/actuator/health) |
-| **Alert Service** | `https://prime-nil-rivers-bundle.trycloudflare.com` | [Swagger UI Alerts](https://prime-nil-rivers-bundle.trycloudflare.com/swagger-ui.html) | [Health](https://prime-nil-rivers-bundle.trycloudflare.com/actuator/health) |
+| **Fleet Management Service** | `https://never-moderate-spec-ratings.trycloudflare.com` | [Swagger UI Fleet](https://never-moderate-spec-ratings.trycloudflare.com/swagger-ui.html) | [Health](https://never-moderate-spec-ratings.trycloudflare.com/actuator/health) |
+| **GPS Ingestion Service** | `https://plaintiff-reel-odds-celebration.trycloudflare.com` | [Swagger UI GPS](https://plaintiff-reel-odds-celebration.trycloudflare.com/swagger-ui.html) | [Health](https://plaintiff-reel-odds-celebration.trycloudflare.com/actuator/health) |
+| **Route Calculation Service** | `https://dev-meaningful-health-wear.trycloudflare.com` | [Swagger UI Routes](https://dev-meaningful-health-wear.trycloudflare.com/swagger-ui.html) | [Health](https://dev-meaningful-health-wear.trycloudflare.com/actuator/health) |
+| **Alert Service** | `https://adjacent-functioning-utilities-ram.trycloudflare.com` | [Swagger UI Alerts](https://adjacent-functioning-utilities-ram.trycloudflare.com/swagger-ui.html) | [Health](https://adjacent-functioning-utilities-ram.trycloudflare.com/actuator/health) |
 
 > 💡 **Credenciales de prueba**: Usuario: `user` \| Contraseña: `user123` (o Administrador: `admin` / `admin123`).
 
