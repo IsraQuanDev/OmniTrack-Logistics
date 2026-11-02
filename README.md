@@ -16,6 +16,21 @@
 
 ---
 
+## 🌐 Entorno de Pruebas en Vivo (Despliegue Público Activo)
+
+Los microservicios cuentan con **túneles seguros HTTPS de Cloudflare activos en tiempo real**, lo que permite a evaluadores, revisores y usuarios probar las APIs y Swagger UI interactivamente sin necesidad de clonar ni compilar el proyecto:
+
+| Microservicio | URL Base Pública | Documentación Interactiva Swagger UI | Monitoreo Actuator |
+|---|---|---|---|
+| **Fleet Management Service** | `https://sat-agriculture-shoes-affiliate.trycloudflare.com` | [Swagger UI Fleet](https://sat-agriculture-shoes-affiliate.trycloudflare.com/swagger-ui.html) | [Health](https://sat-agriculture-shoes-affiliate.trycloudflare.com/actuator/health) |
+| **GPS Ingestion Service** | `https://ping-early-parish-track.trycloudflare.com` | [Swagger UI GPS](https://ping-early-parish-track.trycloudflare.com/swagger-ui.html) | [Health](https://ping-early-parish-track.trycloudflare.com/actuator/health) |
+| **Route Calculation Service** | `https://months-businesses-mins-gibson.trycloudflare.com` | [Swagger UI Routes](https://months-businesses-mins-gibson.trycloudflare.com/swagger-ui.html) | [Health](https://months-businesses-mins-gibson.trycloudflare.com/actuator/health) |
+| **Alert Service** | `https://prime-nil-rivers-bundle.trycloudflare.com` | [Swagger UI Alerts](https://prime-nil-rivers-bundle.trycloudflare.com/swagger-ui.html) | [Health](https://prime-nil-rivers-bundle.trycloudflare.com/actuator/health) |
+
+> 💡 **Credenciales de prueba**: Usuario: `user` \| Contraseña: `user123` (o Administrador: `admin` / `admin123`).
+
+---
+
 ## 📋 Resumen Ejecutivo
 
 **OmniTrack Logistics** es una solución empresarial de alto rendimiento basada en **microservicios reactivos no bloqueantes** construida para la gestión, geolocalización e inteligencia de flotas de transporte terrestre y activos en tránsito. 
