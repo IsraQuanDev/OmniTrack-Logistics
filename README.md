@@ -13,6 +13,17 @@
 [![Redis](https://img.shields.io/badge/Redis-7.0-red.svg)](https://redis.io/)
 [![OpenAPI 3](https://img.shields.io/badge/OpenAPI-Swagger%20UI-green.svg)](https://swagger.io/)
 [![License MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Showcase Video](https://img.shields.io/badge/Video_Showcase-GitHub_Pages-blueviolet.svg)](https://israquandev.github.io/OmniTrack-Logistics/)
+[![PDF Docs](https://img.shields.io/badge/Technical_Docs-16_Pages_PDF-red.svg)](documentation/OmniTrack_Logistics_Documentacion_Tecnica.pdf)
+
+---
+
+## 🎬 Showcase en Video y Documentación Oficial
+
+| Recurso | Enlace Directo | Descripción |
+|---|---|---|
+| **🎬 Video Showcase Interactivo (Autoplay)** | [**Ver Video en GitHub Pages**](https://israquandev.github.io/OmniTrack-Logistics/) | Video técnico Full HD (1080p) con banda sonora estilo *programming synth* que expone toda la arquitectura, microservicios, algoritmos y pruebas. Inicia automáticamente al abrir. |
+| **📄 Memoria Técnica en PDF (16 Páginas)** | [**Descargar PDF Oficial**](documentation/OmniTrack_Logistics_Documentacion_Tecnica.pdf) | Documentación técnica exhaustiva de inicio a fin: diseño de microservicios, diagramas C4, modelo DDL PostGIS, algoritmos matemáticos y guía DevOps. |
 
 ---
 
