@@ -1,0 +1,8 @@
+spring:
+  config:
+    activate:
+      on-profile: postgres
+  r2dbc:
+    url: r2dbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:alert_db}?sslMode=${POSTGRES_SSL_MODE:disable}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}

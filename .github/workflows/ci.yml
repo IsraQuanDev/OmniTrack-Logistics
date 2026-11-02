@@ -1,0 +1,39 @@
+name: CI/CD Pipeline - OmniTrack Logistics
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    name: Build & Run 46 Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build All Microservices & Run 46 Unit Tests
+        run: mvn clean test --batch-mode
+
+      - name: Package Microservices JARs
+        run: mvn package -DskipTests --batch-mode
+
+      - name: Archive Built Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: omnitrack-jars
+          path: |
+            fleet-management-service/target/*.jar
+            gps-ingestion-service/target/*.jar
+            route-calculation-service/target/*.jar
+            alert-service/target/*.jar

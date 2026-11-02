@@ -1,0 +1,437 @@
+### ==============================================================================
+### OMNITRACK LOGISTICS - HTTP REQUEST COLLECTION
+### Plataforma de Seguimiento Logístico y Envíos (Fleet & Asset Tracking)
+### Colección completa de peticiones de prueba para todos los microservicios
+### Autenticación HTTP Basic:
+###   Admin -> admin:admin123 (Authorization: Basic YWRtaW46YWRtaW4xMjM=)
+###   User  -> user:user123   (Authorization: Basic dXNlcjp1c2VyMTIz)
+### ==============================================================================
+
+@fleet_url = http://localhost:8081
+@gps_url = http://localhost:8082
+@route_url = http://localhost:8083
+@alert_url = http://localhost:8084
+
+@admin_auth = Basic YWRtaW46YWRtaW4xMjM=
+@user_auth = Basic dXNlcjp1c2VyMTIz
+
+
+### ==============================================================================
+### 1. FLEET-MANAGEMENT-SERVICE (Puerto 8081)
+### ==============================================================================
+
+### 1.1 Actuator Health Check
+GET {{fleet_url}}/actuator/health
+
+### 1.2 Swagger UI Docs
+GET {{fleet_url}}/v3/api-docs
+
+### 1.3 CRUD DE USUARIOS (Punto Extra #2)
+### Listar todos los usuarios
+GET {{fleet_url}}/api/v1/users
+Authorization: {{admin_auth}}
+
+### Obtener usuario por ID
+GET {{fleet_url}}/api/v1/users/1
+Authorization: {{admin_auth}}
+
+### Obtener usuario por Username
+GET {{fleet_url}}/api/v1/users/username/admin
+Authorization: {{admin_auth}}
+
+### Crear nuevo usuario (con validación de inputs)
+POST {{fleet_url}}/api/v1/users
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "username": "supervisor_logistica",
+  "password": "PasswordSeguro2026*",
+  "email": "supervisor@fleetplatform.com",
+  "fullName": "Juan Perez Supervisor",
+  "role": "ROLE_USER",
+  "active": true
+}
+
+### Actualizar usuario
+PUT {{fleet_url}}/api/v1/users/1
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "adminNewPassword123",
+  "email": "admin_updated@fleetplatform.com",
+  "fullName": "Administrador Principal de Plataforma",
+  "role": "ROLE_ADMIN",
+  "active": true
+}
+
+### Eliminar usuario
+DELETE {{fleet_url}}/api/v1/users/2
+Authorization: {{admin_auth}}
+
+
+### 1.4 CRUD DE CONDUCTORES (DRIVERS)
+### Listar todos los conductores
+GET {{fleet_url}}/api/v1/drivers
+Authorization: {{user_auth}}
+
+### Obtener conductor por ID
+GET {{fleet_url}}/api/v1/drivers/1
+Authorization: {{user_auth}}
+
+### Crear conductor
+POST {{fleet_url}}/api/v1/drivers
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "fullName": "Fernando Torres",
+  "licenseNumber": "LIC-MX-99887",
+  "phone": "+525599887766",
+  "email": "fernando.torres@fleetplatform.com",
+  "active": true
+}
+
+### Actualizar conductor
+PUT {{fleet_url}}/api/v1/drivers/1
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "fullName": "Carlos Mendez Actualizado",
+  "licenseNumber": "LIC-MX-98765",
+  "phone": "+525500001111",
+  "email": "carlos.mendez.new@fleetplatform.com",
+  "active": true
+}
+
+### Eliminar conductor
+DELETE {{fleet_url}}/api/v1/drivers/2
+Authorization: {{admin_auth}}
+
+
+### 1.5 CRUD DE VEHÍCULOS / ACTIVOS (VEHICLES)
+### Listar vehículos (todos)
+GET {{fleet_url}}/api/v1/vehicles
+Authorization: {{user_auth}}
+
+### Listar vehículos filtrando por estado
+GET {{fleet_url}}/api/v1/vehicles?status=ACTIVE
+Authorization: {{user_auth}}
+
+### Obtener vehículo por ID
+GET {{fleet_url}}/api/v1/vehicles/1
+Authorization: {{user_auth}}
+
+### Crear nuevo vehículo
+POST {{fleet_url}}/api/v1/vehicles
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "vin": "3VW99988877766655",
+  "licensePlate": "TRK-9900",
+  "brand": "Kenworth",
+  "model": "T680 Next Gen",
+  "yearManufactured": 2024,
+  "status": "ACTIVE",
+  "capacityKg": 32000.0,
+  "assignedDriverId": 1
+}
+
+### Actualizar vehículo completo
+PUT {{fleet_url}}/api/v1/vehicles/1
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "vin": "3VW12345678901234",
+  "licensePlate": "ABC-1234",
+  "brand": "Volvo",
+  "model": "FH16 Globetrotter",
+  "yearManufactured": 2024,
+  "status": "ACTIVE",
+  "capacityKg": 26000.0,
+  "assignedDriverId": 1
+}
+
+### Modificar estado operativo (PATCH)
+PATCH {{fleet_url}}/api/v1/vehicles/1/status?status=MAINTENANCE
+Authorization: {{user_auth}}
+
+### Eliminar vehículo
+DELETE {{fleet_url}}/api/v1/vehicles/2
+Authorization: {{admin_auth}}
+
+
+### 1.6 CRUD DE ENVÍOS Y DESPACHOS (SHIPMENTS)
+### Listar todos los envíos
+GET {{fleet_url}}/api/v1/shipments
+Authorization: {{user_auth}}
+
+### Crear nuevo despacho de carga
+POST {{fleet_url}}/api/v1/shipments
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "trackingNumber": "TRK-2026-9999",
+  "vehicleId": 1,
+  "originAddress": "Parque Industrial Tlalnepantla, Estado de México",
+  "originLatitude": 19.5397,
+  "originLongitude": -99.1952,
+  "destAddress": "Puerto de Veracruz, Ver.",
+  "destLatitude": 19.1738,
+  "destLongitude": -96.1342,
+  "status": "CREATED"
+}
+
+### Obtener envío por ID
+GET {{fleet_url}}/api/v1/shipments/1
+Authorization: {{user_auth}}
+
+### Buscar envío por número de guía (Tracking)
+GET {{fleet_url}}/api/v1/shipments/tracking/TRK-2026-0001
+Authorization: {{user_auth}}
+
+### Actualizar estado del despacho
+PATCH {{fleet_url}}/api/v1/shipments/1/status?status=DELIVERED
+Authorization: {{user_auth}}
+
+
+
+### ==============================================================================
+### 2. GPS-INGESTION-SERVICE (Puerto 8082)
+### ==============================================================================
+
+### 2.1 Actuator Health Check
+GET {{gps_url}}/actuator/health
+
+### 2.2 OpenAPI Docs
+GET {{gps_url}}/v3/api-docs
+
+### 2.3 Ingesta individual de telemetría GPS en tiempo real
+POST {{gps_url}}/api/v1/telemetry
+Authorization: {{user_auth}}
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "deviceId": "GPS-UNIT-A101",
+  "latitude": 19.4501,
+  "longitude": -99.1450,
+  "altitude": 2245.0,
+  "speedKmh": 78.5,
+  "heading": 125.0,
+  "batteryLevel": 92.0,
+  "fuelLevel": 75.0
+}
+
+### 2.4 Ingesta masiva en lote (High-Throughput Batch)
+POST {{gps_url}}/api/v1/telemetry/batch
+Authorization: {{user_auth}}
+Content-Type: application/json
+
+{
+  "records": [
+    {
+      "vehicleId": 1,
+      "deviceId": "GPS-UNIT-A101",
+      "latitude": 19.4600,
+      "longitude": -99.1550,
+      "altitude": 2250.0,
+      "speedKmh": 82.0,
+      "heading": 130.0,
+      "batteryLevel": 91.5,
+      "fuelLevel": 74.0
+    },
+    {
+      "vehicleId": 1,
+      "deviceId": "GPS-UNIT-A101",
+      "latitude": 19.4700,
+      "longitude": -99.1650,
+      "altitude": 2255.0,
+      "speedKmh": 85.0,
+      "heading": 135.0,
+      "batteryLevel": 91.0,
+      "fuelLevel": 73.5
+    }
+  ]
+}
+
+### 2.5 Consultar última posición conocida del vehículo
+GET {{gps_url}}/api/v1/telemetry/latest/1
+Authorization: {{user_auth}}
+
+### 2.6 Consultar historial de coordenadas
+GET {{gps_url}}/api/v1/telemetry/history/1
+Authorization: {{user_auth}}
+
+### 2.7 Suscribirse al streaming en tiempo real (Server-Sent Events)
+GET {{gps_url}}/api/v1/telemetry/stream/1
+Authorization: {{user_auth}}
+Accept: text/event-stream
+
+
+
+### ==============================================================================
+### 3. ROUTE-CALCULATION-SERVICE (Puerto 8083)
+### ==============================================================================
+
+### 3.1 Actuator Health Check
+GET {{route_url}}/actuator/health
+
+### 3.2 OpenAPI Docs
+GET {{route_url}}/v3/api-docs
+
+### 3.3 Cálculo de distancia ortodrómica y tiempo estimado de llegada (ETA)
+POST {{route_url}}/api/v1/routes/calculate-eta
+Authorization: {{user_auth}}
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "originLatitude": 19.432608,
+  "originLongitude": -99.133209,
+  "currentLatitude": 19.800000,
+  "currentLongitude": -99.500000,
+  "destLatitude": 20.659698,
+  "destLongitude": -103.349609,
+  "currentSpeedKmh": 85.0
+}
+
+### 3.4 Consultar historial de cálculos de ruta del vehículo
+GET {{route_url}}/api/v1/routes/history/1
+Authorization: {{user_auth}}
+
+### 3.5 CRUD de Geocercas (Geofencing)
+### Listar todas las geocercas
+GET {{route_url}}/api/v1/geofences
+Authorization: {{user_auth}}
+
+### Crear nueva geocerca
+POST {{route_url}}/api/v1/geofences
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "name": "Parque Industrial San Martin Obispo",
+  "description": "Centro logístico y patio de maniobras",
+  "centerLatitude": 19.6050,
+  "centerLongitude": -99.2310,
+  "radiusMeters": 3500.0,
+  "active": true,
+  "vehicleId": 1
+}
+
+### Obtener geocerca por ID
+GET {{route_url}}/api/v1/geofences/1
+Authorization: {{user_auth}}
+
+### Actualizar geocerca
+PUT {{route_url}}/api/v1/geofences/1
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "name": "Zona Metropolitana CDMX Ampliada",
+  "description": "Perímetro expandido para transportes de carga",
+  "centerLatitude": 19.432608,
+  "centerLongitude": -99.133209,
+  "radiusMeters": 25000.0,
+  "active": true,
+  "vehicleId": 1
+}
+
+### Eliminar geocerca
+DELETE {{route_url}}/api/v1/geofences/2
+Authorization: {{admin_auth}}
+
+### 3.6 Verificar si una coordenada está DENTRO o FUERA de la geocerca
+POST {{route_url}}/api/v1/geofences/check
+Authorization: {{user_auth}}
+Content-Type: application/json
+
+{
+  "geofenceId": 1,
+  "latitude": 19.440000,
+  "longitude": -99.140000
+}
+
+
+
+### ==============================================================================
+### 4. ALERT-SERVICE (Puerto 8084)
+### ==============================================================================
+
+### 4.1 Actuator Health Check
+GET {{alert_url}}/actuator/health
+
+### 4.2 OpenAPI Docs
+GET {{alert_url}}/v3/api-docs
+
+### 4.3 Listar todas las alertas
+GET {{alert_url}}/api/v1/alerts
+Authorization: {{user_auth}}
+
+### Listar alertas filtradas por resolución
+GET {{alert_url}}/api/v1/alerts?resolved=false
+Authorization: {{user_auth}}
+
+### Listar alertas filtradas por severidad
+GET {{alert_url}}/api/v1/alerts?severity=HIGH
+Authorization: {{user_auth}}
+
+### Obtener alerta por ID
+GET {{alert_url}}/api/v1/alerts/1
+Authorization: {{user_auth}}
+
+### Consultar alertas de un vehículo específico
+GET {{alert_url}}/api/v1/alerts/vehicle/1
+Authorization: {{user_auth}}
+
+### Crear alerta manualmente
+POST {{alert_url}}/api/v1/alerts
+Authorization: {{admin_auth}}
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "alertType": "PANIC_BUTTON",
+  "severity": "CRITICAL",
+  "message": "Activación de botón de pánico de emergencia por conductor",
+  "latitude": 19.4326,
+  "longitude": -99.1332,
+  "currentValue": 1.0,
+  "thresholdValue": 0.0
+}
+
+### Resolver alerta
+PATCH {{alert_url}}/api/v1/alerts/1/resolve
+Authorization: {{user_auth}}
+
+### Eliminar alerta
+DELETE {{alert_url}}/api/v1/alerts/2
+Authorization: {{admin_auth}}
+
+### 4.4 Evaluación automática de reporte de telemetría (detección de anomalías)
+POST {{alert_url}}/api/v1/alerts/evaluate-telemetry
+Authorization: {{user_auth}}
+Content-Type: application/json
+
+{
+  "vehicleId": 1,
+  "speedKmh": 118.4,
+  "latitude": 19.4500,
+  "longitude": -99.1500,
+  "batteryLevel": 11.2,
+  "fuelLevel": 8.0,
+  "panicButtonPressed": false
+}
+
+### 4.5 Streaming reactivo de alertas (Server-Sent Events)
+GET {{alert_url}}/api/v1/alerts/stream
+Authorization: {{user_auth}}
+Accept: text/event-stream

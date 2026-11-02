@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # Base de Datos PostgreSQL con soporte PostGIS para consultas geoespaciales (Punto Extra #4)
+  postgres-postgis:
+    image: postgis/postgis:15-3.3
+    container_name: omnitrack-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: omnitrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Servidor Redis para caché reactiva y pub/sub de telemetría GPS
+  redis:
+    image: redis:7-alpine
+    container_name: omnitrack-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  # 1. Fleet Management Service (Gestión de Flotas, Vehículos, Conductores, Envíos y Usuarios)
+  fleet-management-service:
+    build:
+      context: ./fleet-management-service
+    container_name: omnitrack-fleet-service
+    depends_on:
+      postgres-postgis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      POSTGRES_HOST: postgres-postgis
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: omnitrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "8081:8081"
+
+  # 2. GPS Ingestion Service (Ingesta masiva de coordenadas GPS y WebSockets)
+  gps-ingestion-service:
+    build:
+      context: ./gps-ingestion-service
+    container_name: omnitrack-gps-service
+    depends_on:
+      postgres-postgis:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      POSTGRES_HOST: postgres-postgis
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: omnitrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "8082:8082"
+
+  # 3. Route Calculation Service (Cálculo de rutas, Haversine, Geocercas y ETA)
+  route-calculation-service:
+    build:
+      context: ./route-calculation-service
+    container_name: omnitrack-route-service
+    depends_on:
+      postgres-postgis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      POSTGRES_HOST: postgres-postgis
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: omnitrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "8083:8083"
+
+  # 4. Alert Service (Detección de anomalías en tiempo real, velocidad y streaming SSE)
+  alert-service:
+    build:
+      context: ./alert-service
+    container_name: omnitrack-alert-service
+    depends_on:
+      postgres-postgis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: postgres
+      POSTGRES_HOST: postgres-postgis
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: omnitrack_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+    ports:
+      - "8084:8084"
+
+volumes:
+  pgdata:
