@@ -1,0 +1,15 @@
+<div class="omnitrack-app-layout">
+  <app-header></app-header>
+
+  <div class="app-body">
+    <app-sidebar [activeTab]="activeTab" (tabChanged)="onTabChanged($event)"></app-sidebar>
+
+    <main class="main-content">
+      <app-live-map *ngIf="activeTab === 'map'"></app-live-map>
+      <app-route-studio *ngIf="activeTab === 'route'"></app-route-studio>
+      <app-fleet-manager *ngIf="activeTab === 'fleet'"></app-fleet-manager>
+      <app-alert-center *ngIf="activeTab === 'alerts'"></app-alert-center>
+      <app-endpoint-runner *ngIf="activeTab === 'api'"></app-endpoint-runner>
+    </main>
+  </div>
+</div>

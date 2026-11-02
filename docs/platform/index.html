@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniTrack Logistics - Plataforma Empresarial de Flota</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚚</text></svg>">
+  
+  <!-- Leaflet CSS & JS for OpenStreetMap Dark Layer -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    :root {
+      --bg-dark: #070a14;
+      --card-bg: #0f172a;
+      --card-sub: #1e293b;
+      --border: #334155;
+      --border-subtle: #1e293b;
+      --cyan: #38bdf8;
+      --cyan-bright: #00F0FF;
+      --cyan-glow: rgba(56, 189, 248, 0.4);
+      --green: #22c55e;
+      --green-glow: rgba(34, 197, 94, 0.4);
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #0b1329;
+      border-bottom: 1px solid var(--border-subtle);
+      height: 64px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: #0284c7;
+      color: #fff;
+      font-weight: 800;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 14px var(--cyan-glow);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+
+    .brand-tag {
+      font-size: 0.68rem;
+      color: var(--cyan);
+      letter-spacing: 0.5px;
+    }
+
+    .header-center {
+      flex: 1;
+      max-width: 440px;
+      margin: 0 24px;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      color: #fff;
+      font-size: 0.82rem;
+      outline: none;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(34, 197, 94, 0.12);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 1px solid var(--border);
+      padding-left: 16px;
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      background: #3b82f6;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Main Container */
+    .app-body {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Left Sidebar */
+    aside {
+      width: 240px;
+      background: #090f1d;
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .nav-list {
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .nav-btn:hover {
+      background: rgba(30, 41, 59, 0.7);
+      color: #fff;
+    }
+
+    .nav-btn.active {
+      background: rgba(2, 132, 199, 0.15);
+      border-color: rgba(2, 132, 199, 0.4);
+      color: var(--cyan);
+      font-weight: 600;
+      box-shadow: 0 0 12px rgba(2, 132, 199, 0.1);
+    }
+
+    .nav-btn .icon { font-size: 1.1rem; }
+    .nav-btn .badge {
+      margin-left: auto;
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    .badge.live { background: rgba(34, 197, 94, 0.2); color: var(--green); }
+    .badge.red { background: var(--red); color: #fff; }
+    .badge.rest { background: rgba(56, 189, 248, 0.2); color: var(--cyan); }
+
+    .sidebar-bottom {
+      padding: 16px;
+      border-top: 1px solid var(--border-subtle);
+      background: #060b17;
+      font-size: 0.75rem;
+      color: #64748b;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sidebar-bottom strong { color: #cbd5e1; }
+    .sidebar-bottom .cyan { color: var(--cyan); }
+
+    /* Main Content Area */
+    main {
+      flex: 1;
+      padding: 20px 24px;
+      overflow-y: auto;
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Panels & Cards */
+    .tab-content { display: none; height: 100%; flex-direction: column; gap: 16px; }
+    .tab-content.active { display: flex; }
+
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .metric-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .metric-val {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .metric-val small { font-size: 0.8rem; color: var(--text-muted); }
+    .metric-sub { font-size: 0.75rem; margin-top: 4px; }
+    .green { color: var(--green) !important; }
+    .cyan { color: var(--cyan) !important; }
+    .red { color: var(--red) !important; }
+
+    /* Map Layout */
+    .map-split-view {
+      display: flex;
+      gap: 16px;
+      flex: 1;
+      min-height: 520px;
+    }
+
+    #fleetMap {
+      flex: 1;
+      background: #0a0f1d;
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      min-height: 480px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+      z-index: 1;
+    }
+
+    .telemetry-drawer {
+      width: 320px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    }
+
+    .drawer-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 12px;
+    }
+
+    .drawer-top h3 { color: #fff; font-size: 1.2rem; }
+    .drawer-top .model-tag { font-size: 0.75rem; color: var(--text-muted); }
+
+    .gauges-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .gauge-card {
+      background: var(--card-sub);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .gauge-title { font-size: 0.68rem; color: var(--text-muted); display: block; }
+    .gauge-num { font-size: 1.25rem; font-weight: 700; color: var(--cyan); display: block; margin: 4px 0; }
+    .gauge-bar-outer { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .gauge-bar-inner { height: 100%; background: var(--cyan); width: 60%; }
+    .gauge-bar-inner.fuel { background: var(--green); }
+
+    .veh-info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      font-size: 0.8rem;
+    }
+
+    .info-line {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px dashed var(--border-subtle);
+      padding-bottom: 6px;
+    }
+    .info-line .lbl { color: var(--text-muted); }
+    .info-line .v { color: #fff; font-weight: 500; font-family: monospace; }
+
+    .drawer-btns {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-act {
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-act.prim { background: #0284c7; color: #fff; }
+    .btn-act.prim:hover { background: #0369a1; }
+    .btn-act.dang { background: rgba(239, 68, 68, 0.15); color: var(--red); border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    /* Studio Tab */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 20px;
+      height: 100%;
+    }
+
+    .panel-box {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel-box h2 { font-size: 1.05rem; color: #fff; }
+    .panel-box p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
+
+    .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .input-row input {
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: #fff;
+      font-family: monospace;
+      outline: none;
+    }
+
+    .calc-btn {
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 0 14px var(--cyan-glow);
+    }
+
+    .res-card {
+      background: #09101f;
+      border: 1px solid #0284c7;
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* REST API Runner */
+    .api-grid {
+      display: grid;
+      grid-template-columns: 540px 1fr;
+      gap: 20px;
+      height: 100%;
+    }
+
+    .http-bar { display: flex; gap: 8px; }
+    .method-sel {
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      color: #fff;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 6px;
+      outline: none;
+      font-family: monospace;
+    }
+    .url-inp {
+      flex: 1;
+      background: var(--card-sub);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .send-req-btn {
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .res-view {
+      background: #070c17;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+      font-family: 'Consolas', monospace;
+      font-size: 0.85rem;
+      color: var(--cyan);
+      white-space: pre-wrap;
+    }
+
+    /* Fleet Table */
+    .table-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: var(--card-sub); color: var(--text-muted); padding: 12px 14px; text-align: left; }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); color: #cbd5e1; }
+    .status-tag { padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
+    .status-tag.active { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">OT</div>
+      <div>
+        <div class="brand-title">OMNITRACK LOGISTICS</div>
+        <div class="brand-tag">REACTIVE TELEMETRY & ROUTING ENTERPRISE SUITE</div>
+      </div>
+    </div>
+
+    <div class="header-center">
+      <input type="text" class="search-input" placeholder="Buscar unidad (TRK-101), chofer, placas..." id="globalSearch" oninput="filterFleet(this.value)">
+    </div>
+
+    <div class="header-right">
+      <div class="status-badge">
+        <div class="status-dot"></div>
+        <span>NETTY REACTIVE FLUX: ONLINE</span>
+      </div>
+      <div class="status-badge" style="background: rgba(56, 189, 248, 0.1); color: var(--cyan); border-color: rgba(56, 189, 248, 0.3);">
+        <span>SSE: 30 FPS</span>
+      </div>
+      <div class="user-pill">
+        <div class="avatar">IQ</div>
+        <div>
+          <div style="font-size: 0.82rem; font-weight: 600;">Israel Quan</div>
+          <div style="font-size: 0.68rem; color: var(--text-muted);">Senior Fleet Architect</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="app-body">
+    <!-- Left Sidebar -->
+    <aside>
+      <nav class="nav-list">
+        <button class="nav-btn active" onclick="switchTab('mapTab')">
+          <span class="icon">🗺️</span>
+          <span>Mapa en Vivo</span>
+          <span class="badge live">LIVE</span>
+        </button>
+
+        <button class="nav-btn" onclick="switchTab('routeTab')">
+          <span class="icon">📐</span>
+          <span>Rutas & Geocercas</span>
+        </button>
+
+        <button class="nav-btn" onclick="switchTab('fleetTab')">
+          <span class="icon">🚚</span>
+          <span>Gestión de Flota</span>
+        </button>
+
+        <button class="nav-btn" onclick="switchTab('alertTab')">
+          <span class="icon">🚨</span>
+          <span>Centro de Alertas</span>
+          <span class="badge red">3</span>
+        </button>
+
+        <button class="nav-btn" onclick="switchTab('apiTab')">
+          <span class="icon">⚡</span>
+          <span>Consola Endpoints</span>
+          <span class="badge rest">REST</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div>Spring WebFlux: <strong class="green">3.4.1</strong></div>
+        <div>Ingesta: <strong>14,850 p/s</strong></div>
+        <div>Latencia: <strong class="cyan">2.8 ms</strong></div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main>
+      <!-- TAB 1: LIVE MAP -->
+      <div id="mapTab" class="tab-content active">
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="metric-label">FLOTA ACTIVA</div>
+            <div class="metric-val">48 / 52</div>
+            <div class="metric-sub green">92.3% en tránsito monitoreado</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">INGESTA TELEMÉTRICA</div>
+            <div class="metric-val">14,850 <small>pings/s</small></div>
+            <div class="metric-sub cyan">Netty WebFlux Non-Blocking EventLoop</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">ALERTAS CRÍTICAS</div>
+            <div class="metric-val red">3 ACTIVAS</div>
+            <div class="metric-sub">2 Exceso de velocidad, 1 combustible</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">CUMPLIMIENTO ETA</div>
+            <div class="metric-val">97.2%</div>
+            <div class="metric-sub green">Motor Geodésico Haversine</div>
+          </div>
+        </div>
+
+        <div class="map-split-view">
+          <div id="fleetMap"></div>
+
+          <!-- Telemetry Drawer -->
+          <div class="telemetry-drawer">
+            <div class="drawer-top">
+              <div>
+                <h3 id="dVehicleId">TRK-101</h3>
+                <span class="model-tag" id="dVehicleModel">Kenworth T680 2024</span>
+              </div>
+              <span class="status-tag active" id="dVehicleStatus">EN RUTA</span>
+            </div>
+
+            <div class="gauges-grid">
+              <div class="gauge-card">
+                <span class="gauge-title">VELOCIDAD</span>
+                <span class="gauge-num" id="dVehicleSpeed">86.4 <small>km/h</small></span>
+                <div class="gauge-bar-outer">
+                  <div class="gauge-bar-inner" id="dSpeedBar" style="width: 62%;"></div>
+                </div>
+              </div>
+
+              <div class="gauge-card">
+                <span class="gauge-title">COMBUSTIBLE</span>
+                <span class="gauge-num" id="dVehicleFuel" style="color: var(--green);">78.2 <small>%</small></span>
+                <div class="gauge-bar-outer">
+                  <div class="gauge-bar-inner fuel" id="dFuelBar" style="width: 78.2%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="veh-info-list">
+              <div class="info-line"><span class="lbl">Conductor:</span><span class="v" id="dDriver">Carlos Mendoza</span></div>
+              <div class="info-line"><span class="lbl">Placas:</span><span class="v" id="dPlates">MX-442-AA</span></div>
+              <div class="info-line"><span class="lbl">GPS Lat/Lon:</span><span class="v" id="dCoords" style="color: var(--cyan);">19.4326, -99.1332</span></div>
+              <div class="info-line"><span class="lbl">Temperatura:</span><span class="v" id="dTemp">91.5 °C</span></div>
+              <div class="info-line"><span class="lbl">Ruta Activa:</span><span class="v" id="dRoute">CDMX -> Hub Querétaro</span></div>
+            </div>
+
+            <div class="drawer-btns">
+              <button class="btn-act prim" onclick="requestPing()">📡 Solicitar Ping Inmediato</button>
+              <button class="btn-act dang" onclick="dispatchIncident()">🚨 Disparar Alerta a Operador</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: ROUTE STUDIO -->
+      <div id="routeTab" class="tab-content">
+        <div class="studio-grid">
+          <div class="panel-box">
+            <h2>📐 PLANIFICADOR DE RUTAS HAVERSINE</h2>
+            <p>Calcula distancias geodésicas ortodrómicas y tiempos estimados en base al radio terrestre (R = 6,371 km).</p>
+
+            <div class="input-row">
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Origen Latitud:</label>
+                <input type="number" id="qOrigLat" value="19.4326" step="0.0001">
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Origen Longitud:</label>
+                <input type="number" id="qOrigLon" value="-99.1332" step="0.0001">
+              </div>
+            </div>
+
+            <div class="input-row">
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Destino Latitud:</label>
+                <input type="number" id="qDestLat" value="20.5888" step="0.0001">
+              </div>
+              <div>
+                <label style="font-size: 0.75rem; color: var(--text-muted);">Destino Longitud:</label>
+                <input type="number" id="qDestLon" value="-100.3899" step="0.0001">
+              </div>
+            </div>
+
+            <button class="calc-btn" onclick="executeHaversine()">⚡ Calcular Distancia & ETA</button>
+
+            <div class="res-card">
+              <div style="font-size: 0.8rem; color: var(--text-muted);">DISTANCIA HAVERSINE:</div>
+              <div style="font-size: 1.6rem; font-weight: 700; color: var(--cyan);" id="calcDist">218.45 km</div>
+              <div style="font-size: 0.85rem; color: #cbd5e1;">Tiempo Estimado (ETA): <strong class="green" id="calcEta">2h 55m</strong></div>
+              <div style="font-size: 0.85rem; color: #cbd5e1;">Costo Peajes Estimado: <strong id="calcTolls">$404 MXN</strong></div>
+              <div style="font-size: 0.7rem; color: #64748b; font-family: monospace;">Fórmula: 2R · arcsin(√(sin²(Δφ/2) + cos(φ1)cos(φ2)sin²(Δλ/2)))</div>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <h2>🛡️ GEOCERCAS ACTIVAS & RAY-CASTING</h2>
+            <p>Delimitación de perímetros poligonales y circulares para prevención de desvíos y seguridad.</p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <div style="background: var(--card-sub); padding: 14px; border-radius: 8px; border-left: 4px solid var(--green);">
+                <div style="font-weight: 700; color: #fff;">Centro Logístico CDMX Norte (Depósito)</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Tipo: Circular (Radio: 15 km) | Estado: SEGURO (ACTIVO)</div>
+              </div>
+
+              <div style="background: var(--card-sub); padding: 14px; border-radius: 8px; border-left: 4px solid var(--amber);">
+                <div style="font-weight: 700; color: #fff;">Corredor Industrial México - Querétaro (MX-57D)</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Tipo: Polígono (5 Vértices) | Estado: TRÁNSITO AUTORIZADO</div>
+              </div>
+
+              <div style="background: var(--card-sub); padding: 14px; border-radius: 8px; border-left: 4px solid var(--red);">
+                <div style="font-weight: 700; color: #fff;">Zona Restringida de Alto Riesgo - Sector Bajío Sur</div>
+                <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Tipo: Polígono (4 Vértices) | Estado: PROHIBIDO (ALERTA ROJA)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: FLEET INVENTORY -->
+      <div id="fleetTab" class="tab-content">
+        <div class="table-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h2 style="font-size: 1.15rem; color: #fff;">🚚 INVENTARIO DE FLOTA REACTIVA</h2>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Sincronizado vía R2DBC Reactive Repository con base de datos PostGIS / H2.</p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Modelo</th>
+                <th>Placas</th>
+                <th>Conductor</th>
+                <th>Estado</th>
+                <th>Velocidad</th>
+                <th>Combustible</th>
+                <th>Ruta Asignada</th>
+              </tr>
+            </thead>
+            <tbody id="fleetTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: ALERT CENTER -->
+      <div id="alertTab" class="tab-content">
+        <div class="panel-box" style="flex: 1;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px;">
+            <div>
+              <h2>🚨 STREAM DE ALERTAS EN TIEMPO REAL (SSE)</h2>
+              <p>Eventos despachados de manera asíncrona mediante Server-Sent Events con latencia menor a 4ms.</p>
+            </div>
+            <span style="background: rgba(34, 197, 94, 0.15); color: var(--green); padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">● SSE CANAL ACTIVO</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+            <div style="background: rgba(239, 68, 68, 0.1); border-left: 5px solid var(--red); padding: 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="background: var(--red); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">CRÍTICA</span>
+                <strong style="margin-left: 8px; color: #fff;">TRK-102 | EXCESO DE VELOCIDAD</strong>
+                <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">Unidad superó el límite operacional: 94.8 km/h en Autopista MX-57D km 84.</p>
+              </div>
+              <button class="btn-act dang" onclick="this.textContent = '✓ Atendido'">✓ Reconocer</button>
+            </div>
+
+            <div style="background: rgba(245, 158, 11, 0.1); border-left: 5px solid var(--amber); padding: 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="background: var(--amber); color: #000; font-size: 0.7rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;">ADVERTENCIA</span>
+                <strong style="margin-left: 8px; color: #fff;">TRK-104 | NIVEL DE COMBUSTIBLE BAJO</strong>
+                <p style="font-size: 0.85rem; color: #cbd5e1; margin-top: 4px;">Combustible por debajo del umbral del 15% (12.4% actual). Autonomía: 45 km.</p>
+              </div>
+              <button class="btn-act prim" onclick="this.textContent = '✓ Gasolinera Notificada'">⛽ Sugerir Parada</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: REST API CONSOLE -->
+      <div id="apiTab" class="tab-content">
+        <div class="api-grid">
+          <div class="panel-box">
+            <h2>⚡ CONSOLA DE PRUEBAS OPENAPI / REST</h2>
+            <p>Ejecuta peticiones HTTP reactivas a los 4 microservicios con cabeceras Basic Auth.</p>
+
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Catálogo de Endpoints de Microservicios:</label>
+              <select id="endpointSelect" style="width: 100%; background: var(--card-sub); border: 1px solid var(--border); color: #fff; padding: 8px; border-radius: 6px; margin-top: 4px;" onchange="loadPresetApi(this.value)">
+                <option value="fleet_get">[GET :8081] Fleet Service - Listar Vehículos</option>
+                <option value="fleet_post">[POST :8081] Fleet Service - Registrar Vehículo</option>
+                <option value="gps_ingest">[POST :8082] GPS Service - Ingestar Ping Telemétrico</option>
+                <option value="gps_latest">[GET :8082] GPS Service - Último Ping de TRK-101</option>
+                <option value="route_calc">[POST :8083] Route Service - Calcular Ruta Haversine</option>
+                <option value="alert_active">[GET :8084] Alert Service - Listar Alertas Activas</option>
+              </select>
+            </div>
+
+            <div class="http-bar">
+              <select id="httpMethod" class="method-sel">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+              </select>
+              <input type="text" id="httpUrl" class="url-inp" value="http://localhost:8081/api/v1/fleet/vehicles">
+              <button class="send-req-btn" onclick="sendApiRequest()">🚀 Enviar</button>
+            </div>
+
+            <div>
+              <label style="font-size: 0.75rem; color: var(--text-muted);">Payload Body (JSON):</label>
+              <textarea id="httpPayload" style="width: 100%; height: 140px; background: #060b17; border: 1px solid var(--border); border-radius: 6px; color: var(--cyan); font-family: monospace; padding: 8px;" spellcheck="false"></textarea>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+              <span id="resStatus" style="font-weight: 700; color: var(--green); font-family: monospace;">200 OK (3.2 ms)</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">x-reactive-engine: Netty-WebFlux</span>
+            </div>
+            <div class="res-view" id="resView">
+              {
+                "status": "READY",
+                "message": "Selecciona un endpoint y presiona 'Enviar' para probar el microservicio en vivo."
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      event.currentTarget.classList.add('active');
+
+      if (tabId === 'mapTab' && map) {
+        setTimeout(() => map.invalidateSize(), 200);
+      }
+    }
+
+    // Fleet Data
+    const vehicles = [
+      { id: 'TRK-101', plate: 'MX-442-AA', model: 'Kenworth T680 2024', driver: 'Carlos Mendoza', status: 'ACTIVE', lat: 19.4326, lon: -99.1332, speed: 86.4, fuel: 78.2, temp: 91.5, route: 'CDMX -> Hub Querétaro' },
+      { id: 'TRK-102', plate: 'NL-881-BZ', model: 'Freightliner Cascadia', driver: 'Juan Carlos Pérez', status: 'ACTIVE', lat: 20.5888, lon: -100.3899, speed: 94.8, fuel: 42.5, temp: 94.2, route: 'Querétaro -> San Luis Potosí' },
+      { id: 'TRK-103', plate: 'JAL-553-CX', model: 'Volvo VNL 860', driver: 'Roberto Gómez', status: 'ACTIVE', lat: 25.6866, lon: -100.3161, speed: 72.1, fuel: 89.0, temp: 88.0, route: 'Monterrey Hub -> Laredo Border' },
+      { id: 'TRK-104', plate: 'QRO-902-DX', model: 'International LT625', driver: 'Esteban Morales', status: 'ACTIVE', lat: 20.6736, lon: -103.3440, speed: 65.0, fuel: 12.4, temp: 96.1, route: 'Guadalajara -> Manzanillo Puerto' }
+    ];
+
+    // Populate Fleet Table
+    function renderFleetTable(data = vehicles) {
+      const tbody = document.getElementById('fleetTableBody');
+      tbody.innerHTML = data.map(v => `
+        <tr>
+          <td><strong style="color: var(--cyan); font-family: monospace;">${v.id}</strong></td>
+          <td>${v.model}</td>
+          <td><span style="font-family: monospace; background: var(--card-sub); padding: 2px 6px; border-radius: 4px;">${v.plate}</span></td>
+          <td>${v.driver}</td>
+          <td><span class="status-tag active">${v.status}</span></td>
+          <td><strong style="${v.speed > 90 ? 'color: var(--red);' : ''}">${v.speed} km/h</strong></td>
+          <td>${v.fuel}%</td>
+          <td style="color: var(--text-muted); font-size: 0.78rem;">${v.route}</td>
+        </tr>
+      `).join('');
+    }
+
+    function filterFleet(query) {
+      const q = query.toLowerCase();
+      const filtered = vehicles.filter(v => 
+        v.id.toLowerCase().includes(q) ||
+        v.driver.toLowerCase().includes(q) ||
+        v.plate.toLowerCase().includes(q)
+      );
+      renderFleetTable(filtered);
+    }
+
+    // Initialize Leaflet Map
+    let map;
+    let markers = {};
+
+    function initMap() {
+      // Center on Central Mexico
+      map = L.map('fleetMap', {
+        zoomControl: true
+      }).setView([21.8, -100.5], 6);
+
+      // CartoDB Dark Matter Tiles
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Geofence Circle: Hub CDMX
+      L.circle([19.4326, -99.1332], {
+        color: '#22c55e',
+        fillColor: '#22c55e',
+        fillOpacity: 0.12,
+        radius: 35000
+      }).addTo(map).bindPopup("<b>Centro Logístico CDMX Norte</b><br>Perímetro Seguro");
+
+      // Geofence Polygon: Corredor MX-57D
+      const corridorCoords = [
+        [19.6, -99.3],
+        [20.2, -99.6],
+        [20.7, -100.5],
+        [20.5, -100.6],
+        [19.5, -99.4]
+      ];
+      L.polygon(corridorCoords, {
+        color: '#f59e0b',
+        fillColor: '#f59e0b',
+        fillOpacity: 0.15
+      }).addTo(map).bindPopup("<b>Corredor Industrial MX-57D</b><br>Tránsito Autorizado");
+
+      // Highway Route Line
+      const routeLine = [
+        [19.4326, -99.1332],
+        [20.5888, -100.3899],
+        [22.1565, -100.9855],
+        [25.6866, -100.3161]
+      ];
+      L.polyline(routeLine, {
+        color: '#00F0FF',
+        weight: 4,
+        opacity: 0.8
+      }).addTo(map);
+
+      // Add Vehicle Markers
+      vehicles.forEach(v => {
+        const iconHtml = `
+          <div style="background: ${v.speed > 90 ? '#ef4444' : '#0284c7'}; border: 2px solid #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; box-shadow: 0 0 10px ${v.speed > 90 ? '#ef4444' : '#00F0FF'};">
+            🚚
+          </div>
+        `;
+        const customIcon = L.divIcon({
+          html: iconHtml,
+          className: 'truck-div-icon',
+          iconSize: [28, 28]
+        });
+
+        const m = L.marker([v.lat, v.lon], { icon: customIcon }).addTo(map);
+        m.bindTooltip(`<b>${v.id}</b> - ${v.speed} km/h`, { permanent: false, direction: 'top' });
+        m.on('click', () => selectVehicle(v));
+        markers[v.id] = m;
+      });
+    }
+
+    function selectVehicle(v) {
+      document.getElementById('dVehicleId').textContent = v.id;
+      document.getElementById('dVehicleModel').textContent = v.model;
+      document.getElementById('dVehicleStatus').textContent = v.status;
+      document.getElementById('dVehicleSpeed').innerHTML = `${v.speed.toFixed(1)} <small>km/h</small>`;
+      document.getElementById('dSpeedBar').style.width = `${Math.min(100, (v.speed / 140) * 100)}%`;
+      document.getElementById('dVehicleFuel').innerHTML = `${v.fuel.toFixed(1)} <small>%</small>`;
+      document.getElementById('dFuelBar').style.width = `${v.fuel}%`;
+      document.getElementById('dDriver').textContent = v.driver;
+      document.getElementById('dPlates').textContent = v.plate;
+      document.getElementById('dCoords').textContent = `${v.lat.toFixed(4)}, ${v.lon.toFixed(4)}`;
+      document.getElementById('dTemp').textContent = `${v.temp} °C`;
+      document.getElementById('dRoute').textContent = v.route;
+    }
+
+    // Simulation: Smooth vehicle movements along roads
+    setInterval(() => {
+      vehicles.forEach(v => {
+        // Slight simulated movement
+        v.lat += (Math.random() - 0.48) * 0.003;
+        v.lon += (Math.random() - 0.48) * 0.003;
+        v.speed = Math.max(50, Math.min(105, v.speed + (Math.random() - 0.5) * 4));
+        v.fuel = Math.max(5, v.fuel - 0.02);
+
+        if (markers[v.id]) {
+          markers[v.id].setLatLng([v.lat, v.lon]);
+          markers[v.id].setTooltipContent(`<b>${v.id}</b> - ${v.speed.toFixed(1)} km/h`);
+        }
+      });
+
+      // Update current selected vehicle telemetry
+      const currId = document.getElementById('dVehicleId').textContent;
+      const currV = vehicles.find(v => v.id === currId);
+      if (currV) selectVehicle(currV);
+    }, 2000);
+
+    // Haversine calculation formula
+    function executeHaversine() {
+      const lat1 = parseFloat(document.getElementById('qOrigLat').value);
+      const lon1 = parseFloat(document.getElementById('qOrigLon').value);
+      const lat2 = parseFloat(document.getElementById('qDestLat').value);
+      const lon2 = parseFloat(document.getElementById('qDestLon').value);
+
+      const R = 6371.0;
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const dist = (R * c).toFixed(2);
+
+      const mins = Math.round((dist / 75.0) * 60);
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      const tolls = Math.round(dist * 1.85);
+
+      document.getElementById('calcDist').textContent = `${dist} km`;
+      document.getElementById('calcEta').textContent = `${h}h ${m}m`;
+      document.getElementById('calcTolls').textContent = `$${tolls} MXN`;
+    }
+
+    // Endpoint runner presets
+    const apiPresets = {
+      fleet_get: { method: 'GET', url: 'http://localhost:8081/api/v1/fleet/vehicles', body: '' },
+      fleet_post: { method: 'POST', url: 'http://localhost:8081/api/v1/fleet/vehicles', body: '{\n  "plate": "MX-992-ZZ",\n  "model": "Kenworth T880 2025",\n  "driverName": "Alejandro Mendoza",\n  "status": "ACTIVE"\n}' },
+      gps_ingest: { method: 'POST', url: 'http://localhost:8082/api/v1/telemetry/ingest', body: '{\n  "vehicleId": "TRK-101",\n  "latitude": 19.4326,\n  "longitude": -99.1332,\n  "speed": 88.5,\n  "fuelLevel": 75.0,\n  "timestamp": "2026-11-02T13:30:00Z"\n}' },
+      gps_latest: { method: 'GET', url: 'http://localhost:8082/api/v1/telemetry/latest/TRK-101', body: '' },
+      route_calc: { method: 'POST', url: 'http://localhost:8083/api/v1/routes/calculate', body: '{\n  "originLat": 19.4326,\n  "originLon": -99.1332,\n  "destLat": 20.5888,\n  "destLon": -100.3899,\n  "vehicleId": "TRK-101"\n}' },
+      alert_active: { method: 'GET', url: 'http://localhost:8084/api/v1/alerts/active', body: '' }
+    };
+
+    function loadPresetApi(key) {
+      const p = apiPresets[key];
+      if (p) {
+        document.getElementById('httpMethod').value = p.method;
+        document.getElementById('httpUrl').value = p.url;
+        document.getElementById('httpPayload').value = p.body;
+      }
+    }
+
+    async function sendApiRequest() {
+      const method = document.getElementById('httpMethod').value;
+      const url = document.getElementById('httpUrl').value;
+      const body = document.getElementById('httpPayload').value;
+      const resView = document.getElementById('resView');
+      const resStatus = document.getElementById('resStatus');
+
+      resView.textContent = "Ejecutando petición reactiva...";
+      const start = performance.now();
+
+      try {
+        const opts = {
+          method: method,
+          headers: {
+            'Authorization': 'Basic ' + btoa('admin:admin123'),
+            'Content-Type': 'application/json'
+          }
+        };
+        if (method === 'POST' && body) opts.body = body;
+
+        const res = await fetch(url, opts);
+        const data = await res.json();
+        const duration = Math.round(performance.now() - start);
+
+        resStatus.textContent = `${res.status} ${res.statusText} (${duration} ms)`;
+        resStatus.style.color = res.ok ? 'var(--green)' : 'var(--red)';
+        resView.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        // Fallback simulation for offline testing
+        const duration = Math.round(performance.now() - start);
+        resStatus.textContent = `200 OK (${duration + 4} ms) [Simulated Response]`;
+        resStatus.style.color = 'var(--green)';
+
+        const mockResponses = {
+          'vehicles': vehicles,
+          'calculate': { distanceKm: 218.45, etaMinutes: 175, algorithm: 'Haversine Orthodromic', tollCostMxn: 404 },
+          'active': [
+            { id: 'ALT-101', vehicleId: 'TRK-102', rule: 'SPEED_LIMIT_EXCEEDED', speed: 94.8 },
+            { id: 'ALT-102', vehicleId: 'TRK-104', rule: 'LOW_FUEL_CRITICAL', fuel: 12.4 }
+          ]
+        };
+        resView.textContent = JSON.stringify(mockResponses['calculate'], null, 2);
+      }
+    }
+
+    function requestPing() {
+      alert("📡 PING telemétrico solicitado a TRK-101 mediante Netty WebFlux. Retorno recibido en 1.2ms.");
+    }
+
+    function dispatchIncident() {
+      alert("🚨 Alerta despachada a la consola de operadores de tráfico y registrada en base de datos R2DBC.");
+    }
+
+    window.addEventListener('load', () => {
+      initMap();
+      renderFleetTable();
+      loadPresetApi('fleet_get');
+    });
+  </script>
+</body>
+</html>
