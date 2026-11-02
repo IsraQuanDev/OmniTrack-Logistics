@@ -1,0 +1,45 @@
+# Blueprint de despliegue para Render (https://render.com)
+services:
+  # 1. Fleet Management Service
+  - type: web
+    name: omnitrack-fleet-management
+    env: docker
+    dockerfilePath: ./fleet-management-service/Dockerfile
+    dockerContext: ./fleet-management-service
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: h2
+
+  # 2. GPS Ingestion Service
+  - type: web
+    name: omnitrack-gps-ingestion
+    env: docker
+    dockerfilePath: ./gps-ingestion-service/Dockerfile
+    dockerContext: ./gps-ingestion-service
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: h2
+
+  # 3. Route Calculation Service
+  - type: web
+    name: omnitrack-route-calculation
+    env: docker
+    dockerfilePath: ./route-calculation-service/Dockerfile
+    dockerContext: ./route-calculation-service
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: h2
+
+  # 4. Alert Service
+  - type: web
+    name: omnitrack-alert-service
+    env: docker
+    dockerfilePath: ./alert-service/Dockerfile
+    dockerContext: ./alert-service
+    plan: free
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: h2
