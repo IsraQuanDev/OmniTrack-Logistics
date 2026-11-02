@@ -805,7 +805,7 @@
                 <option value="GET">GET</option>
                 <option value="POST">POST</option>
               </select>
-              <input type="text" id="httpUrl" class="url-inp" value="http://localhost:8081/api/v1/fleet/vehicles">
+              <input type="text" id="httpUrl" class="url-inp" value="https://never-moderate-spec-ratings.trycloudflare.com/api/v1/fleet/vehicles">
               <button class="send-req-btn" onclick="sendApiRequest()">🚀 Enviar</button>
             </div>
 
@@ -1016,12 +1016,12 @@
 
     // Endpoint runner presets
     const apiPresets = {
-      fleet_get: { method: 'GET', url: 'http://localhost:8081/api/v1/fleet/vehicles', body: '' },
-      fleet_post: { method: 'POST', url: 'http://localhost:8081/api/v1/fleet/vehicles', body: '{\n  "plate": "MX-992-ZZ",\n  "model": "Kenworth T880 2025",\n  "driverName": "Alejandro Mendoza",\n  "status": "ACTIVE"\n}' },
-      gps_ingest: { method: 'POST', url: 'http://localhost:8082/api/v1/telemetry/ingest', body: '{\n  "vehicleId": "TRK-101",\n  "latitude": 19.4326,\n  "longitude": -99.1332,\n  "speed": 88.5,\n  "fuelLevel": 75.0,\n  "timestamp": "2026-11-02T13:30:00Z"\n}' },
-      gps_latest: { method: 'GET', url: 'http://localhost:8082/api/v1/telemetry/latest/TRK-101', body: '' },
-      route_calc: { method: 'POST', url: 'http://localhost:8083/api/v1/routes/calculate', body: '{\n  "originLat": 19.4326,\n  "originLon": -99.1332,\n  "destLat": 20.5888,\n  "destLon": -100.3899,\n  "vehicleId": "TRK-101"\n}' },
-      alert_active: { method: 'GET', url: 'http://localhost:8084/api/v1/alerts/active', body: '' }
+      fleet_get: { method: 'GET', url: 'https://never-moderate-spec-ratings.trycloudflare.com/api/v1/fleet/vehicles', body: '' },
+      fleet_post: { method: 'POST', url: 'https://never-moderate-spec-ratings.trycloudflare.com/api/v1/fleet/vehicles', body: '{\n  "plate": "MX-992-ZZ",\n  "model": "Kenworth T880 2025",\n  "driverName": "Alejandro Mendoza",\n  "status": "ACTIVE"\n}' },
+      gps_ingest: { method: 'POST', url: 'https://plaintiff-reel-odds-celebration.trycloudflare.com/api/v1/telemetry/ingest', body: '{\n  "vehicleId": "TRK-101",\n  "latitude": 19.4326,\n  "longitude": -99.1332,\n  "speed": 88.5,\n  "fuelLevel": 75.0,\n  "timestamp": "2026-11-02T13:30:00Z"\n}' },
+      gps_latest: { method: 'GET', url: 'https://plaintiff-reel-odds-celebration.trycloudflare.com/api/v1/telemetry/latest/TRK-101', body: '' },
+      route_calc: { method: 'POST', url: 'https://dev-meaningful-health-wear.trycloudflare.com/api/v1/routes/calculate', body: '{\n  "originLat": 19.4326,\n  "originLon": -99.1332,\n  "destLat": 20.5888,\n  "destLon": -100.3899,\n  "vehicleId": "TRK-101"\n}' },
+      alert_active: { method: 'GET', url: 'https://adjacent-functioning-utilities-ram.trycloudflare.com/api/v1/alerts/active', body: '' }
     };
 
     function loadPresetApi(key) {
